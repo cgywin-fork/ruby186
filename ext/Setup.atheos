@@ -1,6 +1,5 @@
 option nodynamic
 
-#Win32API
 bigdecimal
 curses
 dbm
@@ -27,8 +26,5 @@ stringio
 strscan
 syck
 syslog
-#tcltklib
 thread
-#tk
-#win32ole
 zlib
