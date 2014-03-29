@@ -29,12 +29,14 @@ Aborted (core dumped)
 - zlib && zlib-devel
 - openssl && openssl-devel(参见 [openssl098y源码编译]
   (https://github.com/cgywin-fork/openssl098y/blob/master/README.md) )  
+
 将这些都安装好，并且测试可用（比如make -v）。 
 
 # 编译ruby186源码
 相关构建步骤参见 [build_it.sh](build_it.sh) 。建议在源码外新建一个目录，方便清理和
 切换构建。
-#### 构建脚本如下：  
+#### gcc编译ruby186
+构建脚本如下：  
 ```bash
 mkdir tmp
 cd tmp
@@ -43,7 +45,7 @@ cd tmp
 make
 make install
 ```  
-#### 测试：  
+#### 测试
 ```bash
 $ ruby -v
 ruby 1.8.6p420 [i386-cygwin], with gcc 3.4.6
@@ -59,7 +61,7 @@ irb(main):002:0> quit
 # 安装rubygems
 gem 1.4.2，是最后一个支持ruby186的版本，gem 1.5.0 require ruby187。
 可以从官方和github下载，我下载以后，修复了安装时校验gem版本的一个BUG。  
-#### 安装rubygems：  
+#### 源码安装rubygems
 ```bash
 $ ruby setup.rb
 RubyGems 1.4.2 installed
@@ -78,7 +80,7 @@ Bug fixes:
 RubyGems installed the following executables:
         /usr/local/ruby186/bin/gem
 ```  
-#### 测试：
+#### 测试
 ```bash
 $ gem install -p http://127.0.0.1:8087 diff-lcs -v1.1.2
 Fetching: diff-lcs-1.1.2.gem (100%)
@@ -88,45 +90,79 @@ Successfully installed diff-lcs-1.1.2
 我在自己的rubygems里，关闭了ri和rdoc的：）详细可以参见：  
 **[DHH的pull-request](https://github.com/rubygems/rubygems/pull/42)**  
 
-**llvm** 需要给 /usr/include/machine/_default_types.h 打补丁：  
-```diff
-$ diff -u _default_types.origin_h _default_types.h
---- _default_types.origin_h     2014-03-29 13:49:59.112724000 +0800
-+++ _default_types.h    2014-03-29 13:52:42.240054300 +0800
-@@ -23,7 +23,7 @@
- extern "C" {
- #endif
+# clang compile ruby186
+gcc是如此蛋疼，所以老娘坚决执行**去GCC**的政策。
+#### clang ruby186补丁  
+matz对llvm/clang是从ruby1.9.3开始的，ruby1.9.2不支持，只支持mac-gcc，
+而且容易出问题。经过老娘的研究，发现cygwin下是可以适配ruby186到clang3.4下的，
+主要需要修改：  
+- lex.c，增加对clang的适配
+- 修改/usr/include/machine下default types的定义适配  
 
--#ifdef __INT8_TYPE__
-+#if defined(__INT8_TYPE__) && defined(__UINT8_TYPE__)
- typedef __INT8_TYPE__ __int8_t;
- typedef __UINT8_TYPE__ __uint8_t;
- #define ___int8_t_defined 1
-@@ -33,7 +33,7 @@
- #define ___int8_t_defined 1
- #endif
+关于**/usr/include/machine/_default_types.h**的内容，详细请参见 
+[cygwin-clang-default-type补丁](default_types.diff)  
 
--#ifdef __INT16_TYPE__
-+#if defined(__INT16_TYPE__) && defined(__UINT16_TYPE__)
- typedef __INT16_TYPE__ __int16_t;
- typedef __UINT16_TYPE__ __uint16_t;
- #define ___int16_t_defined 1
-@@ -51,7 +51,7 @@
- #define ___int16_t_defined 1
- #endif
+#### clang编译ruby186
+构建脚本如下：  
+```bash
+mkdir tmp
+cd tmp
+export CC=/usr/local/llvm34/bin/clang
+export CXX=/usr/local/llvm34/bin/clang++
+export CFLAGS=-Qunused-arguments
+export CPPFLAGS=-Qunused-arguments
 
--#ifdef __INT32_TYPE__
-+#if defined(__INT32_TYPE__) && defined(__UINT32_TYPE__)
- typedef __INT32_TYPE__ __int32_t;
- typedef __UINT32_TYPE__ __uint32_t;
- #define ___int32_t_defined 1
-@@ -73,7 +73,7 @@
- #define ___int32_t_defined 1
- #endif
-
--#ifdef __INT64_TYPE__
-+#if defined(__INT64_TYPE__) && defined(__UINT64_TYPE__)
- typedef __INT64_TYPE__ __int64_t;
- typedef __UINT64_TYPE__ __uint64_t;
- #define ___int64_t_defined 1
+../ruby186/configure --prefix=/usr/local/llvm_ruby186 \
+  --with-openssl-dir=/usr/local/openssl98y
+make
+make install
 ```
+#### 测试
+```bash
+$ ruby -v
+ruby 1.8.6p420 [i386-cygwin], with LLVM / Clang 3.4
+
+$ irb
+irb(main):001:0> Thread.start { p 123 }
+123=> #<Thread:0xfff8d388 sleep>
+irb(main):002:0>
+^C
+irb(main):002:0> quit
+```
+#### 安装rubygems
+同前，略过。
+#### 测试
+```bash
+$ gem install -p http://127.0.0.1:8087 cucumber -v0.6.4
+Fetching: tins-1.0.1.gem (100%)
+Fetching: term-ansicolor-1.3.0.gem (100%)
+Fetching: polyglot-0.3.4.gem (100%)
+Fetching: treetop-1.5.3.gem (100%)
+Fetching: builder-3.2.2.gem (100%)
+Fetching: diff-lcs-1.2.5.gem (100%)
+Fetching: json_pure-1.8.1.gem (100%)
+Fetching: cucumber-0.6.4.gem (100%)
+
+(::) (::) (::) (::) (::) (::) (::) (::) (::) (::) (::) (::) (::) (::) (::)
+
+                     (::)   U P G R A D I N G    (::)
+
+Thank you for installing cucumber-0.6.4.
+Please be sure to read http://wiki.github.com/aslakhellesoy/cucumber/upgrading
+for important information about this release. Happy cuking!
+
+(::) (::) (::) (::) (::) (::) (::) (::) (::) (::) (::) (::) (::) (::) (::)
+
+Successfully installed tins-1.0.1
+Successfully installed term-ansicolor-1.3.0
+Successfully installed polyglot-0.3.4
+Successfully installed treetop-1.5.3
+Successfully installed builder-3.2.2
+Successfully installed diff-lcs-1.2.5
+Successfully installed json_pure-1.8.1
+Successfully installed cucumber-0.6.4
+8 gems installed
+```
+
+### 后记
+安装完了之后，对比一下llvm ruby186和gcc ruby186的体积和执行速度，嘿嘿……
