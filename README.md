@@ -103,7 +103,7 @@ matz对llvm/clang是从ruby1.9.3开始的，ruby1.9.2不支持，只支持mac-gc
 [cygwin-clang-default-type补丁](default_types.diff)  
 
 #### clang编译ruby186
-构建脚本如下：  
+构建脚本如下（参见 [clang build it](clang_build_it.sh)）：  
 ```bash
 mkdir tmp
 cd tmp
