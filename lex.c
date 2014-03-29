@@ -65,8 +65,12 @@ hash (str, len)
   return hval + asso_values[(unsigned char)str[len - 1]];
 }
 
+#ifdef __clang__
+  static inline
+#else
 #ifdef __GNUC__
 __inline
+#endif
 #endif
 struct kwtable *
 rb_reserved_word (str, len)

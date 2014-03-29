@@ -1,0 +1,47 @@
+--- _default_types.origin_h	2014-03-29 13:49:59.112724000 +0800
++++ _default_types.h	2014-03-29 14:07:16.400053400 +0800
+@@ -23,7 +23,7 @@
+ extern "C" {
+ #endif
+ 
+-#ifdef __INT8_TYPE__
++#if defined(__INT8_TYPE__) && defined(__UINT8_TYPE__)
+ typedef __INT8_TYPE__ __int8_t;
+ typedef __UINT8_TYPE__ __uint8_t;
+ #define ___int8_t_defined 1
+@@ -33,7 +33,7 @@
+ #define ___int8_t_defined 1
+ #endif
+ 
+-#ifdef __INT16_TYPE__
++#if defined(__INT16_TYPE__) && defined(__UINT16_TYPE__)
+ typedef __INT16_TYPE__ __int16_t;
+ typedef __UINT16_TYPE__ __uint16_t;
+ #define ___int16_t_defined 1
+@@ -51,7 +51,7 @@
+ #define ___int16_t_defined 1
+ #endif
+ 
+-#ifdef __INT32_TYPE__
++#if defined(__INT32_TYPE__) && defined(__UINT32_TYPE__)
+ typedef __INT32_TYPE__ __int32_t;
+ typedef __UINT32_TYPE__ __uint32_t;
+ #define ___int32_t_defined 1
+@@ -73,7 +73,7 @@
+ #define ___int32_t_defined 1
+ #endif
+ 
+-#ifdef __INT64_TYPE__
++#if defined(__INT64_TYPE__) && defined(__UINT64_TYPE__)
+ typedef __INT64_TYPE__ __int64_t;
+ typedef __UINT64_TYPE__ __uint64_t;
+ #define ___int64_t_defined 1
+@@ -164,7 +164,7 @@
+ #define ___int_least64_t_defined 1
+ #endif
+ 
+-#ifdef __INTPTR_TYPE__
++#if defined(__INTPTR_TYPE__) && defined(__UINTPTR_TYPE__)
+ typedef __INTPTR_TYPE__ __intptr_t;
+ typedef __UINTPTR_TYPE__ __uintptr_t;
+ #elif defined(__PTRDIFF_TYPE__)

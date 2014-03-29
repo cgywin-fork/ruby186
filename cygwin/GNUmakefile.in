@@ -47,7 +47,7 @@ $(RCFILES): $(RBCONFIG)
 $(PROGRAM): $(RUBY_INSTALL_NAME).res.@OBJEXT@
 $(WPROGRAM): $(RUBYW_INSTALL_NAME).res.@OBJEXT@
 	@rm -f $@
-	$(PURIFY) $(CC) -mwindows -e _mainCRTStartup $(LDFLAGS) $(XLDFLAGS) \
+	$(PURIFY) $(CC) -e _mainCRTStartup $(LDFLAGS) $(XLDFLAGS) \
 	  $(MAINOBJ) $(EXTOBJS) $(LIBRUBYARG) $(LIBS) -o $@
 
 $(RUBY_EXP): $(LIBRUBY_A)
